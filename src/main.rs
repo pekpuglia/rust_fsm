@@ -1,50 +1,42 @@
-use std::collections::HashMap;
+mod base_fsm;
+use base_fsm::*;
 
-//trait com add_transitions?
-trait State {
-    fn act(&mut self);
-    fn transition_conditions(&self) -> Vec<TransitionOptions>;
+#[derive(Clone)]
+struct Counter {
+    current: usize,
+    exit_condition: fn(&Counter) -> TransitionOptions
 }
 
-enum TransitionOptions {
-    Stay,
-    Change(usize),
-    EndExecution
+impl Counter {
+    fn new(max: usize) -> Counter {
+        Counter { current: max, exit_condition: (|c:&Counter| TransitionOptions::Stay)}
+    }
 }
 
-
-struct FSM {
-    states: HashMap<usize, Box<dyn State>>,
-    current: usize
-}
-
-impl FSM {
+impl State for Counter {
     fn act(&mut self) {
-        self.states.entry(self.current).and_modify(|state| state.act());
+        self.current -= 1;
     }
-    fn update_state(&mut self) -> bool {
-        self.states
-            .get(&self.current)
-            .unwrap()
-            .transition_conditions()
-            .iter()
-            .filter_map(|opt| match opt {
-                TransitionOptions::Stay => None,
-                TransitionOptions::Change(next) => {
-                    self.current = *next;
-                    Some(true)},
-                TransitionOptions::EndExecution => Some(false),
-            })
-            .nth(1)
-            .unwrap_or(true)
-            ;
-        false
+
+    fn transition_conditions(&self) -> Vec<TransitionOptions> {
+        vec![(self.exit_condition)(self)]
     }
 }
 
-
+impl StateWithTransitions for Counter {
+    fn add_transitions(&mut self, condition: fn(&Self) -> TransitionOptions) {
+        self.exit_condition = condition;
+    }
+}
 
 
 fn main() {
-    println!("Hello, world!");
+    let mut c1 = Counter::new(10);
+    c1.add_transitions(|c| match c.current == 0 {
+        true => TransitionOptions::Change(2),
+        false => TransitionOptions::Stay,
+    });
+    //retornar ref mutavel p estado adicionado (p ser possível adicionar transições)
+    let (mut fsm, v1) = base_fsm::FSM::new(c1);
+    fsm.insert_state(Counter::new(20));
 }
