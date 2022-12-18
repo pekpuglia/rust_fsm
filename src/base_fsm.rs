@@ -2,6 +2,9 @@
 
 use std::collections::HashMap;
 
+pub trait TransitionEnum {
+}
+
 pub trait State {
     fn act(&mut self);
     fn transition_conditions(&self) -> Vec<TransitionOptions>;
@@ -28,7 +31,9 @@ pub struct ValidKey {
 impl FSM {
 
     fn act(&mut self) {
-        self.states.entry(self.current).and_modify(|state| state.act());
+        self.states
+            .entry(self.current)
+            .and_modify(|state| state.act());
     }
     fn update_state(&mut self) -> bool {
         self.states
