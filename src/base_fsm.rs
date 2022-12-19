@@ -2,8 +2,6 @@
 
 use std::collections::HashMap;
 
-pub trait TransitionEnum {
-}
 
 pub trait State {
     fn act(&mut self);
@@ -11,8 +9,7 @@ pub trait State {
     fn set_next(&mut self, transition_index: usize, next: ValidKey);
 }
 
-//remover end_execution
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum TransitionOptions {
     Stay,
     Change(Option<ValidKey>)
