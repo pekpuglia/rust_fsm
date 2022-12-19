@@ -95,7 +95,7 @@ impl State for Inputter {
         }
     }
 }
-
+//usar fsm builder p usar set next generico (não object-safe)?
 fn main() {
     let (mut fsm, v1) = base_fsm::FSM::new(Counter::new(5));
 
