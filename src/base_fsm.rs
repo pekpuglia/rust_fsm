@@ -16,6 +16,7 @@ pub enum TransitionOptions<StatesEnum> {
     Change(Option<StatesEnum>)
 }
 
+//deve ser supertrait do State p/ usar com enum dispatch
 pub trait StateTypes<StatesEnum> {
     fn act(&mut self);
     fn transition_conditions(&self) -> Vec<TransitionOptions<StatesEnum>>;
