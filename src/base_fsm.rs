@@ -1,12 +1,19 @@
+//usar associated type?
+pub trait StateBehavior<StatesEnum> {
+    fn act(&mut self);
+    fn transition_conditions(&self) -> Vec<TransitionOptions<StatesEnum>>;
+}
 
-pub trait State {
+pub trait State : StateBehavior<Self::StatesEnum> {
     type TransitionEnum;
 
+    //deve ser apenas parametro generico
     type StatesEnum : Clone;
 
-    fn act(&mut self);
-    fn transition_conditions(&self) -> Vec<TransitionOptions<Self::StatesEnum>>;
-    //melhorar o set_next
+    //remover esses métodos?
+    // fn act(&mut self);
+    // fn transition_conditions(&self) -> Vec<TransitionOptions<Self::StatesEnum>>;
+    
     fn set_next(&mut self, transition: Self::TransitionEnum, next: Self::StatesEnum) -> Self;
 }
 
@@ -17,15 +24,10 @@ pub enum TransitionOptions<StatesEnum> {
 }
 
 //deve ser supertrait do State p/ usar com enum dispatch
-pub trait StateTypes<StatesEnum> {
-    fn act(&mut self);
-    fn transition_conditions(&self) -> Vec<TransitionOptions<StatesEnum>>;
-
-}
 
 pub trait FSM {
     //redundante?
-    type StateTypesEnum: StateTypes<Self::StatesEnum>;
+    type StateTypesEnum: StateBehavior<Self::StatesEnum>;
 
     type StatesEnum: Clone + Copy;
 
