@@ -1,20 +1,17 @@
-//usar associated type?
-pub trait StateBehavior<StatesEnum> {
+use enum_dispatch::enum_dispatch;
+//trait para stateTypesEnum?
+#[enum_dispatch]
+pub trait StateBehaviorSuperType<StatesEnum> {
     fn act(&mut self);
     fn transition_conditions(&self) -> Vec<TransitionOptions<StatesEnum>>;
 }
 
-pub trait State : StateBehavior<Self::StatesEnum> {
+//states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
+pub trait StateTransitionsSetup<StatesEnum> : StateBehaviorSuperType<StatesEnum> {
+    //associated type porque cada estado só pode ter 1 enum de transições
     type TransitionEnum;
-
-    //deve ser apenas parametro generico
-    type StatesEnum : Clone;
-
-    //remover esses métodos?
-    // fn act(&mut self);
-    // fn transition_conditions(&self) -> Vec<TransitionOptions<Self::StatesEnum>>;
     
-    fn set_next(&mut self, transition: Self::TransitionEnum, next: Self::StatesEnum) -> Self;
+    fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -23,11 +20,9 @@ pub enum TransitionOptions<StatesEnum> {
     Change(Option<StatesEnum>)
 }
 
-//deve ser supertrait do State p/ usar com enum dispatch
-
 pub trait FSM {
-    //redundante?
-    type StateTypesEnum: StateBehavior<Self::StatesEnum>;
+    //redundante? - remover na próxima iteração
+    type StateTypesEnum: StateBehaviorSuperType<Self::StatesEnum>;
 
     type StatesEnum: Clone + Copy;
 

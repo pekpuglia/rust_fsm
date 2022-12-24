@@ -18,7 +18,7 @@ pub enum CounterTransition {
     Zero
 }
 
-impl<SE: Copy> StateBehavior<SE> for Counter<SE> {
+impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
     fn act(&mut self) {
         self.current -= 1;
         println!("{}", self.current);
@@ -34,13 +34,11 @@ impl<SE: Copy> StateBehavior<SE> for Counter<SE> {
     }
 }
 
-impl<SE: Copy> State for Counter<SE> {
+impl<SE: Copy> StateTransitionsSetup<SE> for Counter<SE> {
     
     type TransitionEnum = CounterTransition;
 
-    type StatesEnum = SE;
-
-    fn set_next(&mut self, transition_index: Self::TransitionEnum, next: Self::StatesEnum) -> Counter<Self::StatesEnum> {
+    fn set_next(&mut self, _transition: Self::TransitionEnum, next: SE) -> Counter<SE> {
         self.next = Some(next);
         self.to_owned()
     }

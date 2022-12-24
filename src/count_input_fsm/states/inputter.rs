@@ -1,4 +1,5 @@
 use crate::base_fsm::*;
+//usar strings - checar estado com dados na heap
 #[derive(Clone)]
 pub struct Inputter<StatesEnum> {
     prompt_text: &'static str,
@@ -20,7 +21,7 @@ pub enum InputterTransitions {
     Transition2
 }
 
-impl<SE: Copy> StateBehavior<SE> for Inputter<SE> {
+impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
     fn act(&mut self) {
         println!("{}:", self.prompt_text);
 
@@ -52,7 +53,7 @@ impl<SE: Copy> StateBehavior<SE> for Inputter<SE> {
     }
 }
 
-impl<StatesEnum: Copy> State for Inputter<StatesEnum> {
+impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum> for Inputter<StatesEnum> {
     //testar: transition_index como &'static usize
     //fazer tipo para vetor de transições com informação sobre o número de transições
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Inputter<StatesEnum> {
@@ -65,6 +66,5 @@ impl<StatesEnum: Copy> State for Inputter<StatesEnum> {
 
     type TransitionEnum = InputterTransitions;
 
-    type StatesEnum = StatesEnum;
 }
 

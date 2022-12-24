@@ -2,40 +2,13 @@ use crate::base_fsm::*;
 
 mod states;
 use states::{counter::*, inputter::*};
-pub enum FSMTypes<StatesEnum: Clone> {
+use enum_dispatch::enum_dispatch;
+
+#[enum_dispatch(StateBehaviorSuperType<StatesEnum>)]
+pub enum FSMTypes<StatesEnum: Clone + Copy> {
     Counter(Counter<StatesEnum>),
     Inputter(Inputter<StatesEnum>)
 }
-
-impl<StatesEnum: Clone> From<Counter<StatesEnum>> for FSMTypes<StatesEnum> {
-    fn from(c: Counter<StatesEnum>) -> Self {
-        FSMTypes::Counter(c)
-    }
-}
-
-impl<StatesEnum: Clone> From<Inputter<StatesEnum>> for FSMTypes<StatesEnum> {
-    fn from(i: Inputter<StatesEnum>) -> Self {
-        FSMTypes::Inputter(i)
-    }
-}
-
-
-impl<StatesEnum: Copy> StateBehavior<StatesEnum> for FSMTypes<StatesEnum> {
-    fn act(&mut self) {
-        match self {
-            FSMTypes::Counter(state) => state.act(),
-            FSMTypes::Inputter(state) => state.act(),
-        }
-    }
-
-    fn transition_conditions(&self) -> Vec<TransitionOptions<StatesEnum>> {
-        match self {
-            FSMTypes::Counter(state) => state.transition_conditions(),
-            FSMTypes::Inputter(state) => state.transition_conditions(),
-        }
-    }
-}
-
 
 pub struct CountAndInputFSM {
     start_counter: Counter<CountAndInputFSMStates>,
@@ -81,6 +54,7 @@ impl FSM for CountAndInputFSM {
         &mut self.current
     }
 
+    //automatizar
     fn set_state(&mut self, state: Self::StatesEnum) {
         match state {
             CountAndInputFSMStates::StartCounter => self.current = self.start_counter.clone().into(),
