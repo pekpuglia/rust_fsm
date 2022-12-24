@@ -1,15 +1,16 @@
+
 use crate::base_fsm::*;
 #[derive(Clone)]
 pub struct Counter<SE: Clone> {
     current: usize,
-    next: Option<SE>
+    next: Option<SE>,
 }
 
 impl<SE: Clone> Counter<SE> {
     pub fn new(max: usize) -> Counter<SE> {
         Counter { 
             current: max, 
-            next: None 
+            next: None,
         }
     }
 }
@@ -27,10 +28,8 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
         println!("{}", self.current);
     }
 
-
-
-    fn ref_transition_conditions(&self) ->  &[TransitionOptions<SE>] {
-        todo!()
+    fn transition_condition(&self) -> TransitionOptions<SE> {
+        StateTransitionsSetup::transition_condition(self)
     }
 }
 
@@ -46,19 +45,12 @@ impl<SE: Copy> StateTransitionsSetup<SE, COUNTER_TRANSITION_COUNT> for Counter<S
     }
 
     fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<SE>, COUNTER_TRANSITION_COUNT> {
-        // vec![
-        //     match self.current {
-        //         0 => TransitionOptions::Change(self.next),
-        //         _ => TransitionOptions::Stay
-        //     }
-        // ]
-        todo!()
+        heapless::Vec::from_slice(&[match self.current {
+            0 => TransitionOptions::Change(self.next),
+            _ => TransitionOptions::Stay
+        }]).expect("o valor de retorno deve ter COUNTER_TRANSITION_COUNT elementos")
     }
 
 }
 
 generate_assertion!(Counter);
-
-// const fn assert() {
-//     static_assertions::const_assert_eq!(CounterTransition::COUNT, COUNTER_TRANSITION_COUNT);
-// }

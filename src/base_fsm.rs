@@ -1,10 +1,9 @@
-#![no_std]
 use enum_dispatch::enum_dispatch;
 //trait para stateTypesEnum?
 #[enum_dispatch]
 pub trait StateBehaviorSuperType<StatesEnum> {
     fn act(&mut self);
-    fn ref_transition_conditions(&self) -> &[TransitionOptions<StatesEnum>];
+    fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
 }
 
 pub trait TransitionAssertedState {}
@@ -15,17 +14,32 @@ macro_rules! generate_assertion {
             static_assertions::const_assert_eq!(<paste::paste!([<$state Transitions>])>::COUNT, paste::paste!{[<$state:upper _TRANSITION_COUNT>]});
         }
 
-        impl<SE: Clone> TransitionAssertedState for $state<SE> {}
+        impl<SE: Copy> TransitionAssertedState for $state<SE> {}
     };
 }
 pub(crate) use generate_assertion;
 pub(crate) use strum::EnumCount;
 pub(crate) use strum_macros::EnumCount;
 //states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
-pub trait StateTransitionsSetup<StatesEnum, const NUMBER_OF_TRANSITIONS: usize> : StateBehaviorSuperType<StatesEnum> + TransitionAssertedState {
+pub trait StateTransitionsSetup<StatesEnum: Copy, const NUMBER_OF_TRANSITIONS: usize> : StateBehaviorSuperType<StatesEnum> + TransitionAssertedState {
     //associated type porque cada estado só pode ter 1 enum de transições
     type TransitionEnum: EnumCount;
     fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, NUMBER_OF_TRANSITIONS>;
+
+    fn transition_condition(&self) -> TransitionOptions<StatesEnum> {
+        self.transition_conditions()
+            .iter()
+            .filter_map(|opt|
+                {
+                    match opt {
+                        TransitionOptions::Stay => None,
+                        TransitionOptions::Change(_) => Some(*opt),
+                    }
+                }
+            )
+            .nth(0)
+            .unwrap_or(TransitionOptions::Stay)
+    }
 
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
 }
@@ -51,26 +65,13 @@ pub trait FSM {
     }
 
     fn update_state(&mut self) -> bool {
-        let ret = self.current_state()
-            .ref_transition_conditions()
-            .iter()
-            .filter_map(|opt|
-                {
-                    match opt {
-                        TransitionOptions::Stay => None,
-                        TransitionOptions::Change(next) => {
-                            match next {
-                                Some(v) => {Some((Some(*v), true))},
-                                None => Some((None, false))
-                            }
-                        },
-                    }
-                }
-            )
-            .nth(0)
-            .unwrap_or((None,true));
-            ret.0.and_then(|state| Some(self.set_state(state)));
-            ret.1
+        match self.current_state().transition_condition() {
+            TransitionOptions::Stay => true,
+            TransitionOptions::Change(next) => match next {
+                Some(state) => {self.set_state(state); true},
+                None => false
+            },
+        }
     }
 
     fn execute(&mut self) {

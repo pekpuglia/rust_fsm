@@ -54,7 +54,7 @@ impl FSM for CountAndInputFSM {
         &mut self.current
     }
 
-    //automatizar
+    //automatizar, tirar clones
     fn set_state(&mut self, state: Self::StatesEnum) {
         match state {
             CountAndInputFSMStates::StartCounter => self.current = self.start_counter.clone().into(),

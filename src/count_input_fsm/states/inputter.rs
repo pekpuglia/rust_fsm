@@ -51,15 +51,14 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
         }
     }
 
-    fn ref_transition_conditions(&self) ->  &[TransitionOptions<SE>] {
-        todo!()
+    fn transition_condition(&self) -> TransitionOptions<SE> {
+        StateTransitionsSetup::transition_condition(self)
     }
-    
 }
 
 const INPUTTER_TRANSITION_COUNT: usize = 2;
 
-impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum, 2> for Inputter<StatesEnum> {
+impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum, INPUTTER_TRANSITION_COUNT> for Inputter<StatesEnum> {
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Inputter<StatesEnum> {
         match transition {
             InputterTransitions::Transition1 => self.next_1 = Some(next),
@@ -68,9 +67,8 @@ impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum, 2> for Inputter<StatesE
         self.to_owned()
     }
 
-    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, 2> {
-        // self.transitions.as_slice().to_vec()
-        todo!()
+    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, INPUTTER_TRANSITION_COUNT> {
+       heapless::Vec::from_slice(&self.transitions).expect("transitions deve ter INPUTTER_TRANSITION_COUNT elementos")
     }
 
     type TransitionEnum = InputterTransitions;
