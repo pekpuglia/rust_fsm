@@ -16,7 +16,6 @@ impl<StatesEnum> Inputter<StatesEnum> {
     }
 }
 
-use strum_macros::EnumCount;
 
 #[derive(EnumCount)]
 pub enum InputterTransitions {
@@ -51,12 +50,16 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
             None => (),
         }
     }
-    fn transition_conditions(&self) -> Vec<TransitionOptions<SE>> {
-        self.transitions.as_slice().to_vec()
+
+    fn ref_transition_conditions(&self) ->  &[TransitionOptions<SE>] {
+        todo!()
     }
+    
 }
 
-impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum> for Inputter<StatesEnum> {
+const INPUTTER_TRANSITION_COUNT: usize = 2;
+
+impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum, 2> for Inputter<StatesEnum> {
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Inputter<StatesEnum> {
         match transition {
             InputterTransitions::Transition1 => self.next_1 = Some(next),
@@ -65,6 +68,12 @@ impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum> for Inputter<StatesEnum
         self.to_owned()
     }
 
+    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, 2> {
+        // self.transitions.as_slice().to_vec()
+        todo!()
+    }
+
     type TransitionEnum = InputterTransitions;
 }
 
+generate_assertion!(Inputter);

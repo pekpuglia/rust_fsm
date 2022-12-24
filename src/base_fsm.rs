@@ -4,31 +4,30 @@ use enum_dispatch::enum_dispatch;
 #[enum_dispatch]
 pub trait StateBehaviorSuperType<StatesEnum> {
     fn act(&mut self);
-    fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
+    fn ref_transition_conditions(&self) -> &[TransitionOptions<StatesEnum>];
 }
 
-use strum::EnumCount;
+pub trait TransitionAssertedState {}
+
+macro_rules! generate_assertion {
+    ($state:ident) => {
+        const fn assert() {
+            static_assertions::const_assert_eq!(<paste::paste!([<$state Transitions>])>::COUNT, paste::paste!{[<$state:upper _TRANSITION_COUNT>]});
+        }
+
+        impl<SE: Clone> TransitionAssertedState for $state<SE> {}
+    };
+}
+pub(crate) use generate_assertion;
+pub(crate) use strum::EnumCount;
+pub(crate) use strum_macros::EnumCount;
 //states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
-pub trait StateTransitionsSetup<StatesEnum, const NumberOfTransitions: usize> : StateBehaviorSuperType<StatesEnum> {
+pub trait StateTransitionsSetup<StatesEnum, const NUMBER_OF_TRANSITIONS: usize> : StateBehaviorSuperType<StatesEnum> + TransitionAssertedState {
     //associated type porque cada estado só pode ter 1 enum de transições
     type TransitionEnum: EnumCount;
-    
-    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, NumberOfTransitions>;
-
-    //não funciona - a implementação geral precisaria estar no trait StateBehaviorSuperType
-    //mas ela depende desse trait
-    //como resolver?
-    fn transition_condition(&self) -> TransitionOptions<StatesEnum> {
-        //colocar lógica do update state aqui
-        //deixar private p/ impedir overwrite
-    }
+    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, NUMBER_OF_TRANSITIONS>;
 
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
-    fn sanity_check(&self) {
-        //colocar assertion de NumberOfTransitions == Self::TransitionEnum::COUNT
-        static_assertions::const_assert!(1 == 2);
-        debug_assert_eq!(Self::TransitionEnum::COUNT, self.transition_conditions().len())
-    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -52,8 +51,8 @@ pub trait FSM {
     }
 
     fn update_state(&mut self) -> bool {
-        self.current_state()
-            .transition_conditions()
+        let ret = self.current_state()
+            .ref_transition_conditions()
             .iter()
             .filter_map(|opt|
                 {
@@ -61,15 +60,17 @@ pub trait FSM {
                         TransitionOptions::Stay => None,
                         TransitionOptions::Change(next) => {
                             match next {
-                                Some(v) => {self.set_state(*v); Some(true)},
-                                None => Some(false)
+                                Some(v) => {Some((Some(*v), true))},
+                                None => Some((None, false))
                             }
                         },
                     }
                 }
             )
             .nth(0)
-            .unwrap_or(true)
+            .unwrap_or((None,true));
+            ret.0.and_then(|state| Some(self.set_state(state)));
+            ret.1
     }
 
     fn execute(&mut self) {

@@ -30,7 +30,7 @@ pub enum CountAndInputFSMStates {
 impl CountAndInputFSM {
     pub fn new(starting_number: usize) -> CountAndInputFSM {
         let start_counter = Counter::new(starting_number)
-            .set_next(CounterTransition::Zero, CountAndInputFSMStates::Inputter);
+            .set_next(CounterTransitions::Zero, CountAndInputFSMStates::Inputter);
 
         let inp = Inputter::new("selecione o próximo estado", "contador 10", "contador 20")
             .set_next(InputterTransitions::Transition1, CountAndInputFSMStates::Counter10)

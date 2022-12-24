@@ -14,10 +14,10 @@ impl<SE: Clone> Counter<SE> {
     }
 }
 
-use strum_macros::EnumCount;
+
 
 #[derive(EnumCount)]
-pub enum CounterTransition {
+pub enum CounterTransitions {
     Zero
 }
 
@@ -27,23 +27,38 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
         println!("{}", self.current);
     }
 
-    fn transition_conditions(&self) -> Vec<TransitionOptions<SE>> {
-        vec![
-            match self.current {
-                0 => TransitionOptions::Change(self.next),
-                _ => TransitionOptions::Stay
-            }
-        ]
+
+
+    fn ref_transition_conditions(&self) ->  &[TransitionOptions<SE>] {
+        todo!()
     }
 }
 
-impl<SE: Copy> StateTransitionsSetup<SE> for Counter<SE> {
+const COUNTER_TRANSITION_COUNT: usize = 1;
+
+impl<SE: Copy> StateTransitionsSetup<SE, COUNTER_TRANSITION_COUNT> for Counter<SE> {
     
-    type TransitionEnum = CounterTransition;
+    type TransitionEnum = CounterTransitions;
 
     fn set_next(&mut self, _transition: Self::TransitionEnum, next: SE) -> Counter<SE> {
         self.next = Some(next);
         self.to_owned()
     }
 
+    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<SE>, COUNTER_TRANSITION_COUNT> {
+        // vec![
+        //     match self.current {
+        //         0 => TransitionOptions::Change(self.next),
+        //         _ => TransitionOptions::Stay
+        //     }
+        // ]
+        todo!()
+    }
+
 }
+
+generate_assertion!(Counter);
+
+// const fn assert() {
+//     static_assertions::const_assert_eq!(CounterTransition::COUNT, COUNTER_TRANSITION_COUNT);
+// }
