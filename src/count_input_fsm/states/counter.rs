@@ -14,6 +14,9 @@ impl<SE: Clone> Counter<SE> {
     }
 }
 
+use strum_macros::EnumCount;
+
+#[derive(EnumCount)]
 pub enum CounterTransition {
     Zero
 }
@@ -42,4 +45,5 @@ impl<SE: Copy> StateTransitionsSetup<SE> for Counter<SE> {
         self.next = Some(next);
         self.to_owned()
     }
+
 }

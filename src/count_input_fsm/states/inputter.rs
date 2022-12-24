@@ -2,20 +2,23 @@ use crate::base_fsm::*;
 //usar strings - checar estado com dados na heap
 #[derive(Clone)]
 pub struct Inputter<StatesEnum> {
-    prompt_text: &'static str,
-    answer_1: &'static str,
+    prompt_text: String,
+    answer_1: String,
     next_1: Option<StatesEnum>,
-    answer_2: &'static str,
+    answer_2: String,
     next_2: Option<StatesEnum>,
     transitions: Vec<TransitionOptions<StatesEnum>>
 }
 
 impl<StatesEnum> Inputter<StatesEnum> {
-    pub fn new(prompt_text: &'static str, answer_1: &'static str, answer_2: &'static str) -> Inputter<StatesEnum> {
-        Inputter { prompt_text, answer_1, next_1: None, answer_2, next_2: None, transitions: vec![TransitionOptions::Stay, TransitionOptions::Stay] }
+    pub fn new(prompt_text: & str, answer_1: &'static str, answer_2: &'static str) -> Inputter<StatesEnum> {
+        Inputter { prompt_text: prompt_text.to_string(), answer_1: answer_1.to_string(), next_1: None, answer_2: answer_2.to_string(), next_2: None, transitions: vec![TransitionOptions::Stay, TransitionOptions::Stay] }
     }
 }
 
+use strum_macros::EnumCount;
+
+#[derive(EnumCount)]
 pub enum InputterTransitions {
     Transition1,
     Transition2
@@ -54,8 +57,6 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
 }
 
 impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum> for Inputter<StatesEnum> {
-    //testar: transition_index como &'static usize
-    //fazer tipo para vetor de transições com informação sobre o número de transições
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Inputter<StatesEnum> {
         match transition {
             InputterTransitions::Transition1 => self.next_1 = Some(next),
@@ -65,6 +66,5 @@ impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum> for Inputter<StatesEnum
     }
 
     type TransitionEnum = InputterTransitions;
-
 }
 

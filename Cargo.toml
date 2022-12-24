@@ -5,3 +5,7 @@ edition = "2021"
 
 [dependencies]
 enum_dispatch = "0.3.8"
+heapless = "0.7.16"
+static_assertions = "1.1.0"
+strum = "0.24.1"
+strum_macros = "0.24.3"

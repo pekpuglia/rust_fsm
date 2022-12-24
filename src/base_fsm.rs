@@ -1,17 +1,34 @@
+#![no_std]
 use enum_dispatch::enum_dispatch;
 //trait para stateTypesEnum?
 #[enum_dispatch]
 pub trait StateBehaviorSuperType<StatesEnum> {
     fn act(&mut self);
-    fn transition_conditions(&self) -> Vec<TransitionOptions<StatesEnum>>;
+    fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
 }
 
+use strum::EnumCount;
 //states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
-pub trait StateTransitionsSetup<StatesEnum> : StateBehaviorSuperType<StatesEnum> {
+pub trait StateTransitionsSetup<StatesEnum, const NumberOfTransitions: usize> : StateBehaviorSuperType<StatesEnum> {
     //associated type porque cada estado só pode ter 1 enum de transições
-    type TransitionEnum;
+    type TransitionEnum: EnumCount;
     
+    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, NumberOfTransitions>;
+
+    //não funciona - a implementação geral precisaria estar no trait StateBehaviorSuperType
+    //mas ela depende desse trait
+    //como resolver?
+    fn transition_condition(&self) -> TransitionOptions<StatesEnum> {
+        //colocar lógica do update state aqui
+        //deixar private p/ impedir overwrite
+    }
+
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
+    fn sanity_check(&self) {
+        //colocar assertion de NumberOfTransitions == Self::TransitionEnum::COUNT
+        static_assertions::const_assert!(1 == 2);
+        debug_assert_eq!(Self::TransitionEnum::COUNT, self.transition_conditions().len())
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
