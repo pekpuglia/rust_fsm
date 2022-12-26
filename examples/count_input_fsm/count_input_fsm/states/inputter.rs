@@ -1,4 +1,4 @@
-use crate::base_fsm::*;
+use fsm::*;
 //usar strings - checar estado com dados na heap
 #[derive(Clone)]
 pub struct Inputter<StatesEnum> {
@@ -52,7 +52,7 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
     }
 
     fn transition_condition(&self) -> TransitionOptions<SE> {
-        StateTransitionsSetup::transition_condition(self)
+        self.transition_condition_impl()
     }
 }
 

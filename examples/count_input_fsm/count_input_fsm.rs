@@ -1,10 +1,21 @@
-use crate::base_fsm::*;
-
+extern crate fsm;
+pub(crate) use fsm::*;
+use ambassador::{delegatable_trait_remote, Delegate};
 mod states;
 use states::{counter::*, inputter::*};
-use enum_dispatch::enum_dispatch;
+use derive_more::From;
 
-#[enum_dispatch(StateBehaviorSuperType<StatesEnum>)]
+//automatizar daqui
+#[delegatable_trait_remote]
+pub trait StateBehaviorSuperType<StatesEnum> {
+    fn act(&mut self);
+    fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
+}
+
+#[derive(From)]
+#[derive(Delegate)]
+#[delegate(StateBehaviorSuperType<StatesEnum>)]
+//até aqui
 pub enum FSMTypes<StatesEnum: Clone + Copy> {
     Counter(Counter<StatesEnum>),
     Inputter(Inputter<StatesEnum>)

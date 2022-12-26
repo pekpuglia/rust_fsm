@@ -1,5 +1,4 @@
-
-use crate::base_fsm::*;
+use fsm::*;
 #[derive(Clone)]
 pub struct Counter<SE: Clone> {
     current: usize,
@@ -15,8 +14,6 @@ impl<SE: Clone> Counter<SE> {
     }
 }
 
-
-
 #[derive(EnumCount)]
 pub enum CounterTransitions {
     Zero
@@ -29,7 +26,7 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
     }
 
     fn transition_condition(&self) -> TransitionOptions<SE> {
-        StateTransitionsSetup::transition_condition(self)
+        self.transition_condition_impl()
     }
 }
 

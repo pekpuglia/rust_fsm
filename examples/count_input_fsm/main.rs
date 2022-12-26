@@ -1,9 +1,7 @@
 // #![no_std]
-#[forbid(clippy::todo)]
-mod base_fsm;
 
-use base_fsm::*;
-
+extern crate fsm;
+use fsm::*;
 mod count_input_fsm;
 
 use count_input_fsm::CountAndInputFSM;
