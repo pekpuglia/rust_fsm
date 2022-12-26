@@ -5,6 +5,10 @@ mod states;
 use states::{counter::*, inputter::*};
 use derive_more::From;
 
+//macro para:
+//prelúdio do delegatable_trait_remote
+//unificar declaração dos estados
+
 //automatizar daqui
 #[delegatable_trait_remote]
 pub trait StateBehaviorSuperType<StatesEnum> {
