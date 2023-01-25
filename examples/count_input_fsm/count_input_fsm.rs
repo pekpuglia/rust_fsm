@@ -1,48 +1,32 @@
 extern crate fsm;
-extern crate alloc;
-use alloc::borrow::ToOwned;
 pub(crate) use fsm::*;
-use ambassador::{delegatable_trait_remote, Delegate};
+
 mod states;
 use states::{counter::*, inputter::*};
-use derive_more::From;
 
-//macro para:
-//prelúdio do delegatable_trait_remote
-//unificar declaração dos estados
 
-//automatizar daqui
-#[delegatable_trait_remote]
-pub trait StateBehaviorSuperType<StatesEnum> {
-    fn act(&mut self);
-    fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
-}
 
-#[derive(From)]
-#[derive(Delegate)]
-#[delegate(StateBehaviorSuperType<StatesEnum>)]
-//até aqui
-//remover esse enum fazendo método get_state(StatesEnum)
-pub enum FSMTypes<StatesEnum: Clone + Copy> {
-    Counter(Counter<StatesEnum>),
-    Inputter(Inputter<StatesEnum>)
-}
-#[derive(Clone, Copy)]
-pub enum CountAndInputFSMStates {
+fsm_enums!(CountAndInputFSM;
     StartCounter,
     Inputter,
     Counter10,
-    Counter20
-}
+    Counter20;
+    Counter,
+    Inputter
+);
 
 pub struct CountAndInputFSM {
     start_counter: Counter<CountAndInputFSMStates>,
     inp: Inputter<CountAndInputFSMStates>,
     counter10: Counter<CountAndInputFSMStates>,
     counter20: Counter<CountAndInputFSMStates>,
-    current: FSMTypes<CountAndInputFSMStates>
+    current: CountAndInputFSMStateTypes
 }
 
+//automatizar set_next
+//automatizar new, trait FSM
+//automatizar declaração da struct
+//fundir com o fsm_enums!
 
 impl CountAndInputFSM {
     pub fn new(starting_number: usize) -> CountAndInputFSM {
@@ -57,13 +41,13 @@ impl CountAndInputFSM {
 
         let counter20 = Counter::new(20);
 
-        CountAndInputFSM { start_counter: start_counter.clone().to_owned(), inp: inp.to_owned(), counter10, counter20, current: start_counter.into() }
+        CountAndInputFSM { start_counter: start_counter.clone(), inp, counter10, counter20, current: start_counter.into() }
             
     }
 }
 
 impl FSM for CountAndInputFSM {
-    type StateTypesEnum = FSMTypes<Self::StatesEnum>;
+    type StateTypesEnum = CountAndInputFSMStateTypes;
 
     type StatesEnum = CountAndInputFSMStates;
     
