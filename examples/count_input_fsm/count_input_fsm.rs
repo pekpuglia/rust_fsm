@@ -1,4 +1,6 @@
 extern crate fsm;
+extern crate alloc;
+use alloc::borrow::ToOwned;
 pub(crate) use fsm::*;
 use ambassador::{delegatable_trait_remote, Delegate};
 mod states;
@@ -20,9 +22,17 @@ pub trait StateBehaviorSuperType<StatesEnum> {
 #[derive(Delegate)]
 #[delegate(StateBehaviorSuperType<StatesEnum>)]
 //até aqui
+//remover esse enum fazendo método get_state(StatesEnum)
 pub enum FSMTypes<StatesEnum: Clone + Copy> {
     Counter(Counter<StatesEnum>),
     Inputter(Inputter<StatesEnum>)
+}
+#[derive(Clone, Copy)]
+pub enum CountAndInputFSMStates {
+    StartCounter,
+    Inputter,
+    Counter10,
+    Counter20
 }
 
 pub struct CountAndInputFSM {
@@ -33,14 +43,6 @@ pub struct CountAndInputFSM {
     current: FSMTypes<CountAndInputFSMStates>
 }
 
-//
-#[derive(Clone, Copy)]
-pub enum CountAndInputFSMStates {
-    StartCounter,
-    Inputter,
-    Counter10,
-    Counter20
-}
 
 impl CountAndInputFSM {
     pub fn new(starting_number: usize) -> CountAndInputFSM {
