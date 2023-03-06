@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ambassador = "0.3.5"
 derive_more = "0.99.17"
 enum_dispatch = "0.3.8"
 heapless = "0.7.16"

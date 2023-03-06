@@ -1,9 +1,6 @@
 pub use strum::EnumCount;
 pub use strum_macros::EnumCount;
 pub use derive_more::From;
-pub use ambassador::{delegatable_trait_remote, Delegate};
-
-//trait para stateTypesEnum?
 
 pub trait StateBehaviorSuperType<StatesEnum> {
     fn act(&mut self);
@@ -54,12 +51,10 @@ pub enum TransitionOptions<StatesEnum> {
 }
 
 pub trait FSM {
-    //redundante? - remover na próxima iteração
-    type StateTypesEnum: StateBehaviorSuperType<Self::StatesEnum>;
 
     type StatesEnum: Clone + Copy;
 
-    fn current_state(&mut self) -> &mut Self::StateTypesEnum;
+    fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum>;
 
     fn set_state(&mut self, state: Self::StatesEnum);
 
@@ -86,30 +81,13 @@ pub trait FSM {
 
 #[macro_export]
 macro_rules! fsm_enums {
-    ($fsm_name:ident; $($states:ident),+; $($types:ident),+) => {
+    ($fsm_name:ident; $($states:ident),+) => {
         paste::item!{
             #[derive(Clone, Copy)]
             pub enum [<$fsm_name States>] {
                 $(
                     $states
                 ),*
-            }
-        }
-        //prelúdio exigido pela ambassador
-        #[delegatable_trait_remote]
-        pub trait StateBehaviorSuperType<StatesEnum> {
-            fn act(&mut self);
-            fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
-        }
-
-        paste::item!{
-            #[derive(From)]
-            #[derive(Delegate)]
-            #[delegate(StateBehaviorSuperType<[<$fsm_name States>]>)]
-            pub enum [<$fsm_name StateTypes>] {
-            $(
-                $types($types<[<$fsm_name States>]>)
-            ),*
             }
         }
     };

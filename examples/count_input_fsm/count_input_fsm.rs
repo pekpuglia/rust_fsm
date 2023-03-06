@@ -10,17 +10,15 @@ fsm_enums!(CountAndInputFSM;
     StartCounter,
     Inputter,
     Counter10,
-    Counter20;
-    Counter,
-    Inputter
+    Counter20
 );
 
 pub struct CountAndInputFSM {
     start_counter: Counter<CountAndInputFSMStates>,
-    inp: Inputter<CountAndInputFSMStates>,
-    counter10: Counter<CountAndInputFSMStates>,
-    counter20: Counter<CountAndInputFSMStates>,
-    current: CountAndInputFSMStateTypes
+    inp:           Inputter<CountAndInputFSMStates>,
+    counter10:     Counter<CountAndInputFSMStates>,
+    counter20:     Counter<CountAndInputFSMStates>,
+    current:       CountAndInputFSMStates
 }
 
 //automatizar new, trait FSM
@@ -53,28 +51,26 @@ impl CountAndInputFSM {
 
         let counter20 = Counter::new(20);
 
-        CountAndInputFSM { start_counter: start_counter.clone(), inp, counter10, counter20, current: start_counter.into() }
+        CountAndInputFSM { start_counter: start_counter.clone(), inp, counter10, counter20, current: CountAndInputFSMStates::StartCounter }
             
     }
 }
 
 impl FSM for CountAndInputFSM {
-    type StateTypesEnum = CountAndInputFSMStateTypes;
-
     type StatesEnum = CountAndInputFSMStates;
     
-    fn current_state(&mut self) -> &mut Self::StateTypesEnum {
-        &mut self.current
+    fn current_state(&mut self) -> &mut dyn fsm::StateBehaviorSuperType<Self::StatesEnum> {
+        match self.current {
+            CountAndInputFSMStates::StartCounter => &mut self.start_counter,
+            CountAndInputFSMStates::Inputter => &mut self.inp,
+            CountAndInputFSMStates::Counter10 => &mut self.counter10,
+            CountAndInputFSMStates::Counter20 => &mut self.counter20,
+        }
     }
 
     //automatizar, tirar clones
     fn set_state(&mut self, state: Self::StatesEnum) {
-        match state {
-            CountAndInputFSMStates::StartCounter => self.current = self.start_counter.clone().into(),
-            CountAndInputFSMStates::Inputter => self.current = self.inp.clone().into(),
-            CountAndInputFSMStates::Counter10 => self.current = self.counter10.clone().into(),
-            CountAndInputFSMStates::Counter20 => self.current = self.counter20.clone().into(),
-        }
+        self.current = state;
     }
 
 }
