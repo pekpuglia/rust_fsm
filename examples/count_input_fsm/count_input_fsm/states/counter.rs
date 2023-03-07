@@ -13,10 +13,24 @@ impl<SE: Clone> Counter<SE> {
         }
     }
 }
-
-#[derive(EnumCount)]
+//iterar sobre enum, fazer trait p/ transition enum?
+use strum_macros::EnumIter;
+#[derive(EnumIter)]
 pub enum CounterTransitions {
     Zero
+}
+
+impl<StatesEnum:Copy> TransitionEnumTrait<StatesEnum> for CounterTransitions {
+    type State = Counter<StatesEnum>;
+
+    fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesEnum> {
+        match self {
+            CounterTransitions::Zero => match state.current {
+                0 => TransitionOptions::Change(state.next),
+                _ => TransitionOptions::Stay
+            },
+        }
+    }
 }
 
 impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
@@ -26,13 +40,12 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
     }
 
     fn transition_condition(&self) -> TransitionOptions<SE> {
-        self.transition_condition_impl()
+        StateTransitionsSetup::transition_condition(self)
     }
 }
 
-const COUNTER_TRANSITION_COUNT: usize = 1;
 
-impl<SE: Copy> StateTransitionsSetup<SE, COUNTER_TRANSITION_COUNT> for Counter<SE> {
+impl<SE: Copy> StateTransitionsSetup<SE> for Counter<SE> {
     
     type TransitionEnum = CounterTransitions;
 
@@ -41,13 +54,4 @@ impl<SE: Copy> StateTransitionsSetup<SE, COUNTER_TRANSITION_COUNT> for Counter<S
         self.to_owned()
     }
 
-    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<SE>, COUNTER_TRANSITION_COUNT> {
-        heapless::Vec::from_slice(&[match self.current {
-            0 => TransitionOptions::Change(self.next),
-            _ => TransitionOptions::Stay
-        }]).expect("o valor de retorno deve ter COUNTER_TRANSITION_COUNT elementos")
-    }
-
 }
-
-generate_assertion!(Counter);

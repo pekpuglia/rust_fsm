@@ -1,47 +1,40 @@
 pub use strum::EnumCount;
+use strum::IntoEnumIterator;
 pub use strum_macros::EnumCount;
 pub use derive_more::From;
 
+//implementar para o states enum - remover requisito de object safety e fazer trait único
 pub trait StateBehaviorSuperType<StatesEnum> {
     fn act(&mut self);
     fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
 }
 
-pub trait TransitionAssertedState {}
-
-#[macro_export]
-macro_rules! generate_assertion {
-    ($state:ident) => {
-        #[allow(dead_code)]
-        const fn assert() {
-            static_assertions::const_assert_eq!(<paste::paste!([<$state Transitions>])>::COUNT, paste::paste!{[<$state:upper _TRANSITION_COUNT>]});
-        }
-
-        impl<SE: Copy> TransitionAssertedState for $state<SE> {}
-    };
+pub trait TransitionEnumTrait<StatesEnum: Copy> : IntoEnumIterator {
+    type State;
+    fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesEnum>;
 }
-//states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
-pub trait StateTransitionsSetup<StatesEnum: Copy, const NUMBER_OF_TRANSITIONS: usize> : StateBehaviorSuperType<StatesEnum> + TransitionAssertedState {
-    //associated type porque cada estado só pode ter 1 enum de transições
-    type TransitionEnum: EnumCount;
-    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, NUMBER_OF_TRANSITIONS>;
 
-    fn transition_condition_impl(&self) -> TransitionOptions<StatesEnum> {
-        self.transition_conditions()
-            .iter()
+//states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
+pub trait StateTransitionsSetup<StatesEnum: Copy> {
+    //associated type porque cada estado só pode ter 1 enum de transições
+    type TransitionEnum: TransitionEnumTrait<StatesEnum, State = Self>;
+
+    fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
+
+    fn transition_condition(&self) -> TransitionOptions<StatesEnum> {
+        Self::TransitionEnum::iter()
+            .map(|variant| variant.transition_conditions(self))
             .filter_map(|opt|
                 {
                     match opt {
                         TransitionOptions::Stay => None,
-                        TransitionOptions::Change(_) => Some(*opt),
+                        TransitionOptions::Change(_) => Some(opt),
                     }
                 }
             )
             .nth(0)
             .unwrap_or(TransitionOptions::Stay)
     }
-
-    fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
 }
 
 #[derive(Clone, Copy, Debug)]

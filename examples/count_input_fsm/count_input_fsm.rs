@@ -13,6 +13,10 @@ fsm_enums!(CountAndInputFSM;
     Counter20
 );
 
+// impl StateBehaviorSuperType<CountAndInputFSMStates> for CountAndInputFSMStates {
+
+// }
+
 pub struct CountAndInputFSM {
     start_counter: Counter<CountAndInputFSMStates>,
     inp:           Inputter<CountAndInputFSMStates>,

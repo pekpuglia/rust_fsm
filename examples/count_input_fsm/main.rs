@@ -6,9 +6,7 @@ mod count_input_fsm;
 
 use count_input_fsm::CountAndInputFSM;
 
-//transformar em lib
-//organizar código
-//merge com a main?
+//fazer trait state único
 fn main() {
     let mut fsm = CountAndInputFSM::new(5);
     

@@ -1,4 +1,5 @@
 use fsm::*;
+use strum_macros::EnumIter;
 //usar strings - checar estado com dados na heap
 #[derive(Clone)]
 pub struct Inputter<StatesEnum> {
@@ -17,10 +18,21 @@ impl<StatesEnum> Inputter<StatesEnum> {
 }
 
 
-#[derive(EnumCount)]
+#[derive(EnumIter)]
 pub enum InputterTransitions {
     Transition1,
     Transition2
+}
+
+impl<StatesENum: Copy> TransitionEnumTrait<StatesENum> for InputterTransitions  {
+    type State = Inputter<StatesENum>;
+
+    fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesENum> {
+        match self {
+            InputterTransitions::Transition1 => state.transitions[0],
+            InputterTransitions::Transition2 => state.transitions[1],
+        }
+    }
 }
 
 impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
@@ -52,13 +64,12 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
     }
 
     fn transition_condition(&self) -> TransitionOptions<SE> {
-        self.transition_condition_impl()
+        StateTransitionsSetup::transition_condition(self)
     }
 }
 
-const INPUTTER_TRANSITION_COUNT: usize = 2;
 
-impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum, INPUTTER_TRANSITION_COUNT> for Inputter<StatesEnum> {
+impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum> for Inputter<StatesEnum> {
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Inputter<StatesEnum> {
         match transition {
             InputterTransitions::Transition1 => self.next_1 = Some(next),
@@ -67,11 +78,5 @@ impl<StatesEnum: Copy> StateTransitionsSetup<StatesEnum, INPUTTER_TRANSITION_COU
         self.to_owned()
     }
 
-    fn transition_conditions(&self) -> heapless::Vec<TransitionOptions<StatesEnum>, INPUTTER_TRANSITION_COUNT> {
-       heapless::Vec::from_slice(&self.transitions).expect("transitions deve ter INPUTTER_TRANSITION_COUNT elementos")
-    }
-
     type TransitionEnum = InputterTransitions;
 }
-
-generate_assertion!(Inputter);
