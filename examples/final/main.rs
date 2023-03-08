@@ -1,7 +1,7 @@
 // #![no_std]
 
 extern crate fsm;
-use fsm::no_clone_obj_safe_fsm::FSM;
+use fsm::FSM;
 mod count_input_fsm;
 
 use count_input_fsm::CountAndInputFSM;

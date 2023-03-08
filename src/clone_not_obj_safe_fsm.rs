@@ -1,5 +1,4 @@
 use strum::IntoEnumIterator;
-pub use derive_more::From;
 
 pub trait TransitionEnumTrait<StatesEnum: Copy> : IntoEnumIterator {
     type State;
