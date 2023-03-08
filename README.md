@@ -1,4 +1,4 @@
-# fsm
+# rust_fsm
 
 This crate offers a flexible, `no_std`, finite state machine (FSM) implementation for robotics with a focus on compile-time guarantees and ergonomics.
 
