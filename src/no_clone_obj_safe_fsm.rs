@@ -70,15 +70,56 @@ pub trait FSM {
     }
 }
 
+macro_rules! first {
+    ($first:ident, $($tokens:tt),*) => {
+        $first
+    };
+}
+
 #[macro_export]
-macro_rules! NCOSfsm_enums {
-    ($fsm_name:ident; $($states:ident),+) => {
+macro_rules! NCOSfsm {
+    (
+        $fsm_name:ident; 
+        $($states:ident: $types:ty),+;
+        starts with $first_state:ident;
+        $($start_state:ident: [$($transition:expr => $next:expr),*]);*
+    ) => {
         paste::item!{
             #[derive(Clone, Copy)]
             pub enum [<$fsm_name States>] {
                 $(
                     $states
                 ),*
+            }
+        }
+
+        paste::item!{
+            pub struct $fsm_name {
+                $(
+                    [<$states:snake>]: $types
+                ),* ,
+                current: [<$fsm_name States>]
+            }
+        }
+
+        paste::item!{
+            impl $fsm_name {
+                fn internal_new($(mut [<$states:snake>]: $types),+) -> $fsm_name {
+                    $(
+                        let [<$start_state:snake>] =
+                        [<$start_state:snake>]
+                        $(
+                            .set_next($transition, $next)
+                        )*
+                    );*;
+
+                    $fsm_name {
+                        $(
+                            [<$states:snake>]
+                        ),+,
+                        current: [<$fsm_name States>]::$first_state
+                    }
+                }
             }
         }
     };
