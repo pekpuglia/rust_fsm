@@ -1,12 +1,12 @@
 extern crate fsm;
-use fsm::{no_clone_obj_safe_fsm::*, fsm_enums};
+use fsm::{no_clone_obj_safe_fsm::*, NCOSfsm_enums};
 
 mod states;
 use states::{counter::*, inputter::*};
 
 
 
-fsm_enums!(CountAndInputFSM;
+NCOSfsm_enums!(CountAndInputFSM;
     StartCounter,
     Inputter,
     Counter10,

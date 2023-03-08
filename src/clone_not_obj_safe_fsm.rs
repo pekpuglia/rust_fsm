@@ -1,21 +1,17 @@
 use strum::IntoEnumIterator;
 pub use derive_more::From;
 
-//implementar para o states enum - remover requisito de object safety e fazer trait único
-pub trait StateBehaviorSuperType<StatesEnum> {
-    fn act(&mut self);
-    fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
-}
-
 pub trait TransitionEnumTrait<StatesEnum: Copy> : IntoEnumIterator {
     type State;
     fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesEnum>;
 }
 
 //states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
-pub trait StateTransitionsSetup<StatesEnum: Copy> {
+pub trait State<StatesEnum: Copy> {
     //associated type porque cada estado só pode ter 1 enum de transições
     type TransitionEnum: TransitionEnumTrait<StatesEnum, State = Self>;
+
+    fn act(&mut self);
 
     fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
 
@@ -41,16 +37,23 @@ pub enum TransitionOptions<StatesEnum> {
     Change(Option<StatesEnum>)
 }
 
+pub trait StateTypesTrait<StatesEnum> {
+    fn act(&mut self);
+    fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
+}
+
 pub trait FSM {
 
     type StatesEnum: Clone + Copy;
 
-    fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum>;
+    type StatesTypesEnum: StateTypesTrait<Self::StatesEnum>;
+
+    fn current_state(&mut self) -> &mut Self::StatesTypesEnum;
 
     fn set_state(&mut self, state: Self::StatesEnum);
 
     fn act(&mut self) {
-        self.current_state().act()
+        self.current_state().act();
     }
 
     fn update_state(&mut self) -> bool {
@@ -71,7 +74,7 @@ pub trait FSM {
 }
 
 #[macro_export]
-macro_rules! NCOSfsm_enums {
+macro_rules! clone_not_obejct_safe_fsm {
     ($fsm_name:ident; $($states:ident),+) => {
         paste::item!{
             #[derive(Clone, Copy)]
@@ -81,5 +84,7 @@ macro_rules! NCOSfsm_enums {
                 ),*
             }
         }
+
+        
     };
 }
