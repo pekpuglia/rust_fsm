@@ -18,3 +18,5 @@ To setup a FSM, you need to:
 where you specify the name for the finite state machine, list the states and their respective types (struct style), define the first state for the FSM, and list the transitions for each state between brackets with the syntax `TransitionEnumVariant => NextStateIdentifier`(as defined in the previous sections of the macro). This macro will generate a struct named `fsm_name`, an enum named `fsm_nameStates` containing variants for each state, an implementation of the trait FSM for this struct and a private constructor `internal_new` which takes all states as parameters, configures their transitions and returns the initialized FSM.
 
 3) to use your FSM type, bring the trait `fsm::FSM` into scope, create an FSM instance and use the `execute` method.
+
+If you have any trouble, the `examples/final` directory might be of help.
