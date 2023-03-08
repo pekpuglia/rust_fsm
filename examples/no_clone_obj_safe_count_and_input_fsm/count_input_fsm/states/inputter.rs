@@ -1,4 +1,4 @@
-use fsm::*;
+use fsm::no_clone_obj_safe_fsm::*;
 use strum_macros::EnumIter;
 //usar strings - checar estado com dados na heap
 #[derive(Clone)]

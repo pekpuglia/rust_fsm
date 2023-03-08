@@ -1,5 +1,5 @@
 extern crate fsm;
-pub(crate) use fsm::*;
+use fsm::{no_clone_obj_safe_fsm::*, fsm_enums};
 
 mod states;
 use states::{counter::*, inputter::*};
@@ -63,7 +63,7 @@ impl CountAndInputFSM {
 impl FSM for CountAndInputFSM {
     type StatesEnum = CountAndInputFSMStates;
     
-    fn current_state(&mut self) -> &mut dyn fsm::StateBehaviorSuperType<Self::StatesEnum> {
+    fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum> {
         match self.current {
             CountAndInputFSMStates::StartCounter => &mut self.start_counter,
             CountAndInputFSMStates::Inputter => &mut self.inp,
