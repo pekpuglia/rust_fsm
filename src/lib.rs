@@ -65,7 +65,7 @@ pub trait FSM {
         }
     }
 
-    fn execute(&mut self) {
+    fn execute(mut self) where Self: Sized {
         while self.update_state() {
             self.act();
         }
