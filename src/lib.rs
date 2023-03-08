@@ -98,6 +98,24 @@ macro_rules! FSM {
         }
 
         paste::item!{
+            impl FSM for $fsm_name {
+                type StatesEnum = [<$fsm_name States>];
+
+                fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum> {
+                    match self.current {
+                        $(
+                            [<$fsm_name States>]::$states => &mut self.[<$states:snake>]
+                        ),+
+                    }
+                }
+
+                    fn set_state(&mut self, state: Self::StatesEnum) {
+                        self.current = state;
+                    }
+            }
+        }
+
+        paste::item!{
             impl $fsm_name {
                 fn internal_new($(mut [<$states:snake>]: $types),+) -> $fsm_name {
                     $(

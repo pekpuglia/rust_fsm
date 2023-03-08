@@ -31,22 +31,3 @@ impl CountAndInputFSM {
             
     }
 }
-
-impl FSM for CountAndInputFSM {
-    type StatesEnum = CountAndInputFSMStates;
-    
-    fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum> {
-        match self.current {
-            CountAndInputFSMStates::StartCounter => &mut self.start_counter,
-            CountAndInputFSMStates::Inputter => &mut self.inputter,
-            CountAndInputFSMStates::Counter10 => &mut self.counter10,
-            CountAndInputFSMStates::Counter20 => &mut self.counter20,
-        }
-    }
-
-    //automatizar, tirar clones
-    fn set_state(&mut self, state: Self::StatesEnum) {
-        self.current = state;
-    }
-
-}
