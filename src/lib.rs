@@ -14,7 +14,7 @@ pub trait TransitionEnumTrait<StatesEnum: Copy> : IntoEnumIterator {
 }
 
 //states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
-pub trait StateTransitionsSetup<StatesEnum: Copy> {
+pub trait StateTransitionsSetup<StatesEnum: Copy>: StateBehaviorSuperType<StatesEnum> {
     //associated type porque cada estado só pode ter 1 enum de transições
     type TransitionEnum: TransitionEnumTrait<StatesEnum, State = Self>;
 
