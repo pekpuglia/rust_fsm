@@ -1,4 +1,9 @@
 #![no_std]
+//reexportar macros necessários!!!
+//usar enum map exclusivamente ao invés de enum iterator
+//permitir que fsm e estados recebam inputs externos?
+
+
 use strum::IntoEnumIterator;
 pub mod clone_not_obj_safe_fsm;
 
