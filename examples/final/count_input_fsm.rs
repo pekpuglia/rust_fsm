@@ -25,9 +25,16 @@ FSM!(CountAndInputFSM;
 impl CountAndInputFSM {
     pub fn new(starting_number: usize) -> CountAndInputFSM {
         CountAndInputFSM::internal_new(
-            Counter::new(starting_number), 
-            Inputter::new("selecione o próximo estado", "contador 10", "contador 20"), 
-            Counter::new(10), Counter::new(20))
+            Counter::new(starting_number, TransitionOptions::Change(Some(CountAndInputFSMStates::Inputter))), 
+            Inputter::new(
+                "selecione o próximo estado", 
+                "contador 10", 
+                "contador 20",
+            enum_map! {
+                InputterTransitions::Transition1 => TransitionOptions::Change(Some(CountAndInputFSMStates::Counter10)),
+                InputterTransitions::Transition2 => TransitionOptions::Change(Some(CountAndInputFSMStates::Counter20))
+            }), 
+            Counter::new(10, TransitionOptions::Change(None)), Counter::new(20, TransitionOptions::Change(None)))
             
     }
 }

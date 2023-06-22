@@ -4,8 +4,9 @@
 //permitir que fsm e estados recebam inputs externos?
 
 
-use strum::IntoEnumIterator;
-pub mod clone_not_obj_safe_fsm;
+
+
+pub use enum_map::{EnumArray, EnumMap, Enum, enum_map};
 
 //implementar para o states enum - remover requisito de object safety e fazer trait único
 pub trait StateBehaviorSuperType<StatesEnum> {
@@ -13,32 +14,17 @@ pub trait StateBehaviorSuperType<StatesEnum> {
     fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
 }
 
-pub trait TransitionEnumTrait<StatesEnum: Copy> : IntoEnumIterator {
-    type State;
-    fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesEnum>;
-}
+// pub trait TransitionEnumTrait<StatesEnum: Copy> : IntoEnumIterator {
+//     type State;
+//     fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesEnum>;
+// }
 
 //states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
 pub trait StateTransitionsSetup<StatesEnum: Copy>: StateBehaviorSuperType<StatesEnum> {
     //associated type porque cada estado só pode ter 1 enum de transições
-    type TransitionEnum: TransitionEnumTrait<StatesEnum, State = Self>;
+    type TransitionEnum: EnumArray<TransitionOptions<StatesEnum>>;
 
-    fn set_next(&mut self, transition: Self::TransitionEnum, next: StatesEnum) -> Self;
-
-    fn transition_condition(&self) -> TransitionOptions<StatesEnum> {
-        Self::TransitionEnum::iter()
-            .map(|variant| variant.transition_conditions(self))
-            .filter_map(|opt|
-                {
-                    match opt {
-                        TransitionOptions::Stay => None,
-                        TransitionOptions::Change(_) => Some(opt),
-                    }
-                }
-            )
-            .nth(0)
-            .unwrap_or(TransitionOptions::Stay)
-    }
+    fn transition_condition(&self, map: EnumMap<Self::TransitionEnum, TransitionOptions<StatesEnum>>) -> TransitionOptions<StatesEnum>;
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -84,6 +70,7 @@ macro_rules! FSM {
         starts with $first_state:ident;
         $($start_state:ident: [$($transition:expr => $next:expr),*]);*
     ) => {
+        //StatesEnum
         paste::item!{
             #[derive(Clone, Copy)]
             pub enum [<$fsm_name States>] {
@@ -93,6 +80,7 @@ macro_rules! FSM {
             }
         }
 
+        //struct FSM
         paste::item!{
             pub struct $fsm_name {
                 $(
@@ -102,6 +90,7 @@ macro_rules! FSM {
             }
         }
 
+        //impl FSM
         paste::item!{
             impl FSM for $fsm_name {
                 type StatesEnum = [<$fsm_name States>];
@@ -123,13 +112,6 @@ macro_rules! FSM {
         paste::item!{
             impl $fsm_name {
                 fn internal_new($(mut [<$states:snake>]: $types),+) -> $fsm_name {
-                    $(
-                        let [<$start_state:snake>] =
-                        [<$start_state:snake>]
-                        $(
-                            .set_next($transition, $next)
-                        )*
-                    );*;
 
                     $fsm_name {
                         $(
