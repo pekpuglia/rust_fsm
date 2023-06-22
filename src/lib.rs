@@ -1,23 +1,14 @@
 #![no_std]
 //reexportar macros necessários!!!
-//usar enum map exclusivamente ao invés de enum iterator
 //permitir que fsm e estados recebam inputs externos?
-
-
 
 
 pub use enum_map::{EnumArray, EnumMap, Enum, enum_map};
 
-//implementar para o states enum - remover requisito de object safety e fazer trait único
 pub trait StateBehaviorSuperType<StatesEnum> {
     fn act(&mut self);
     fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
 }
-
-// pub trait TransitionEnumTrait<StatesEnum: Copy> : IntoEnumIterator {
-//     type State;
-//     fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesEnum>;
-// }
 
 //states enum é parâmetro genérico pq 1 estado pode participar de mais de uma fsm
 pub trait StateTransitionsSetup<StatesEnum: Copy>: StateBehaviorSuperType<StatesEnum> {

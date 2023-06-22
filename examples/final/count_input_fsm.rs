@@ -4,8 +4,6 @@ use fsm::*;
 mod states;
 use states::{counter::*, inputter::*};
 
-//criar internal_new que recebe uma instancia de cada estado e configura
-//as transições
 
 FSM!(CountAndInputFSM;
     StartCounter: Counter<CountAndInputFSMStates>,

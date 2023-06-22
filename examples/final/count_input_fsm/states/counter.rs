@@ -22,19 +22,6 @@ pub enum CounterTransitions {
     Zero
 }
 
-// impl<StatesEnum:Copy> TransitionEnumTrait<StatesEnum> for CounterTransitions {
-//     type State = Counter<StatesEnum>;
-
-//     fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesEnum> {
-//         match self {
-//             CounterTransitions::Zero => match state.current {
-//                 0 => TransitionOptions::Change(state.next),
-//                 _ => TransitionOptions::Stay
-//             },
-//         }
-//     }
-// }
-
 impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
     fn act(&mut self) {
         self.current -= 1;

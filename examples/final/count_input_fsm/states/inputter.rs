@@ -1,6 +1,5 @@
 use fsm::*;
-// use strum_macros::EnumIter;
-//usar strings - checar estado com dados na heap
+
 #[derive(Clone)]
 pub struct Inputter<StatesEnum> {
     prompt_text: String,
@@ -22,17 +21,6 @@ pub enum InputterTransitions {
     Transition1,
     Transition2
 }
-
-// impl<StatesENum: Copy> TransitionEnumTrait<StatesENum> for InputterTransitions  {
-//     type State = Inputter<StatesENum>;
-
-//     fn transition_conditions(&self, state: &Self::State) -> TransitionOptions<StatesENum> {
-//         match self {
-//             InputterTransitions::Transition1 => state.transitions[0],
-//             InputterTransitions::Transition2 => state.transitions[1],
-//         }
-//     }
-// }
 
 impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
     fn act(&mut self) {
