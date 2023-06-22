@@ -29,11 +29,11 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
 
     type Input = ();
 
-    type Output = ();
+    type Output = String;
 
     fn act(&mut self, inp: Self::Input) -> Self::Output {
         self.current -= 1;
-        println!("{}", self.current);
+        self.current.to_string()
     }
 }
 

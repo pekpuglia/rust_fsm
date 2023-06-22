@@ -10,6 +10,7 @@ fn main() {
     let mut fsm = CountAndInputFSM::new(5);
     
     while fsm.update_state() {
-        fsm.act(())
+        let ret = fsm.act(());
+        println!("{}", ret)
     }
 }

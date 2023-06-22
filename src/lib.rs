@@ -63,7 +63,7 @@ pub trait FSM {
 #[macro_export]
 macro_rules! FSM {
     (
-        $fsm_name:ident; 
+        $fsm_name:ident: $inp:ty => $out:ty; 
         $($states:ident: $types:ty),+
     ) => {
         //StatesEnum
@@ -91,8 +91,8 @@ macro_rules! FSM {
             impl FSM for $fsm_name {
                 type StatesEnum = [<$fsm_name States>];
                 
-                type Input = ();
-                type Output = ();
+                type Input = $inp;
+                type Output = $out;
                 fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum, Input = Self::Input, Output = Self::Output> {
                     match self.current {
                         $(
