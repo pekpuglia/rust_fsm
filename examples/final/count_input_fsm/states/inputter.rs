@@ -23,7 +23,7 @@ pub enum InputterTransitions {
 }
 
 impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
-    fn act(&mut self) {
+    fn act(&mut self, inp: Self::Input) -> Self::Output {
         println!("{}:", self.prompt_text);
 
         let input =  {
@@ -51,6 +51,10 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
     fn transition_condition(&self) -> TransitionOptions<SE> {
         StateTransitionsSetup::transition_condition(self, self.map)
     }
+
+    type Input = ();
+
+    type Output = ();
 }
 
 

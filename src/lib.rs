@@ -5,7 +5,10 @@
 pub use enum_map::{EnumArray, EnumMap, Enum, enum_map};
 
 pub trait StateBehaviorSuperType<StatesEnum> {
-    fn act(&mut self);
+    type Input;
+    type Output;
+
+    fn act(&mut self, inp: Self::Input) -> Self::Output;
     fn transition_condition(&self) -> TransitionOptions<StatesEnum>;
 }
 
@@ -28,12 +31,15 @@ pub trait FSM {
 
     type StatesEnum: Clone + Copy;
 
-    fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum>;
+    type Input;
+    type Output;
+
+    fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum, Input = Self::Input, Output = Self::Output>;
 
     fn set_state(&mut self, state: Self::StatesEnum);
 
-    fn act(&mut self) {
-        self.current_state().act()
+    fn act(&mut self, inp: Self::Input) -> Self::Output {
+        self.current_state().act(inp)
     }
 
     fn update_state(&mut self) -> bool {
@@ -47,11 +53,11 @@ pub trait FSM {
         }
     }
 
-    fn execute(mut self) where Self: Sized {
-        while self.update_state() {
-            self.act();
-        }
-    }
+    // fn execute(mut self) where Self: Sized {
+    //     while self.update_state() {
+    //         self.act();
+    //     }
+    // }
 }
 
 #[macro_export]
@@ -84,8 +90,10 @@ macro_rules! FSM {
         paste::item!{
             impl FSM for $fsm_name {
                 type StatesEnum = [<$fsm_name States>];
-
-                fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum> {
+                
+                type Input = ();
+                type Output = ();
+                fn current_state(&mut self) -> &mut dyn StateBehaviorSuperType<Self::StatesEnum, Input = Self::Input, Output = Self::Output> {
                     match self.current {
                         $(
                             [<$fsm_name States>]::$states => &mut self.[<$states:snake>]

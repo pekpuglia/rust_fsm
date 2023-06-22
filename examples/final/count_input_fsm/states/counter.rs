@@ -23,13 +23,17 @@ pub enum CounterTransitions {
 }
 
 impl<SE: Copy> StateBehaviorSuperType<SE> for Counter<SE> {
-    fn act(&mut self) {
-        self.current -= 1;
-        println!("{}", self.current);
-    }
-
     fn transition_condition(&self) -> TransitionOptions<SE> {
         StateTransitionsSetup::transition_condition(self, self.map)
+    }
+
+    type Input = ();
+
+    type Output = ();
+
+    fn act(&mut self, inp: Self::Input) -> Self::Output {
+        self.current -= 1;
+        println!("{}", self.current);
     }
 }
 

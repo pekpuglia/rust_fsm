@@ -7,7 +7,9 @@ mod count_input_fsm;
 use count_input_fsm::CountAndInputFSM;
 
 fn main() {
-    let fsm = CountAndInputFSM::new(5);
+    let mut fsm = CountAndInputFSM::new(5);
     
-    fsm.execute();
+    while fsm.update_state() {
+        fsm.act(())
+    }
 }
