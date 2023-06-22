@@ -13,7 +13,7 @@ To setup a FSM, you need to:
         FSM!($fsm_name:ident;
         $($states:ident: $types:ty),+;
   
-    where you specify the name for the finite state machine, list the states and their respective types (struct style). This macro will generate a struct named `fsm_name`, an enum named `fsm_nameStates` containing variants for each state, an implementation of the trait FSM for this struct. You 
+    where you specify the name for the finite state machine, list the states and their respective types (struct style). This macro will generate a struct named `fsm_name`, an enum named `fsm_nameStates` containing variants for each state, an implementation of the trait FSM for this struct. You need to create a constructor where you specify the initial state for the machine (`current` field for the generated struct).
 
 3) to use your FSM type, bring the trait `fsm::FSM` into scope, create an FSM instance and use the `execute` method.
 
