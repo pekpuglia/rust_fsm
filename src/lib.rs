@@ -57,9 +57,7 @@ pub trait FSM {
 macro_rules! FSM {
     (
         $fsm_name:ident; 
-        $($states:ident: $types:ty),+;
-        starts with $first_state:ident;
-        $($start_state:ident: [$($transition:expr => $next:expr),*]);*
+        $($states:ident: $types:ty),+
     ) => {
         //StatesEnum
         paste::item!{
@@ -97,20 +95,6 @@ macro_rules! FSM {
                     fn set_state(&mut self, state: Self::StatesEnum) {
                         self.current = state;
                     }
-            }
-        }
-
-        paste::item!{
-            impl $fsm_name {
-                fn internal_new($(mut [<$states:snake>]: $types),+) -> $fsm_name {
-
-                    $fsm_name {
-                        $(
-                            [<$states:snake>]
-                        ),+,
-                        current: [<$fsm_name States>]::$first_state
-                    }
-                }
             }
         }
     };
