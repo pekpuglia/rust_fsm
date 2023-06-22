@@ -1,5 +1,4 @@
 #![no_std]
-//reexportar macros necessários!!!
 //permitir que fsm e estados recebam inputs externos?
 
 
