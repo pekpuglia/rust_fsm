@@ -4,30 +4,29 @@ use fsm::*;
 mod states;
 use states::{counter::*, inputter::*};
 
-//criar internal_new que recebe uma instancia de cada estado e configura
-//as transições
 
 FSM!(CountAndInputFSM;
     StartCounter: Counter<CountAndInputFSMStates>,
     Inputter: Inputter<CountAndInputFSMStates>,
     Counter10: Counter<CountAndInputFSMStates>,
-    Counter20: Counter<CountAndInputFSMStates>;
-    starts with StartCounter;
-    StartCounter: [
-        CounterTransitions::Zero => CountAndInputFSMStates::Inputter
-    ];
-    Inputter: [
-        InputterTransitions::Transition1 => CountAndInputFSMStates::Counter10,
-        InputterTransitions::Transition2 => CountAndInputFSMStates::Counter20
-    ]
+    Counter20: Counter<CountAndInputFSMStates>
 );
 
 impl CountAndInputFSM {
     pub fn new(starting_number: usize) -> CountAndInputFSM {
-        CountAndInputFSM::internal_new(
-            Counter::new(starting_number), 
-            Inputter::new("selecione o próximo estado", "contador 10", "contador 20"), 
-            Counter::new(10), Counter::new(20))
-            
+        CountAndInputFSM {
+            start_counter: Counter::new(starting_number, TransitionOptions::Change(Some(CountAndInputFSMStates::Inputter))),
+            inputter: Inputter::new(
+                "selecione o próximo estado", 
+                "contador 10", 
+                "contador 20",
+                enum_map! {
+                    InputterTransitions::Transition1 => TransitionOptions::Change(Some(CountAndInputFSMStates::Counter10)),
+                    InputterTransitions::Transition2 => TransitionOptions::Change(Some(CountAndInputFSMStates::Counter20))
+            }),
+            counter10: Counter::new(10, TransitionOptions::Change(None)),
+            counter20: Counter::new(20, TransitionOptions::Change(None)),
+            current: CountAndInputFSMStates::StartCounter,
+        }            
     }
 }
