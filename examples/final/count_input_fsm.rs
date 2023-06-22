@@ -5,7 +5,7 @@ mod states;
 use states::{counter::*, inputter::*};
 
 
-FSM!(CountAndInputFSM;
+FSM!(CountAndInputFSM: () => String;
     StartCounter: Counter<CountAndInputFSMStates>,
     Inputter: Inputter<CountAndInputFSMStates>,
     Counter10: Counter<CountAndInputFSMStates>,

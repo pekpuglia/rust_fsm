@@ -23,7 +23,7 @@ pub enum InputterTransitions {
 }
 
 impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
-    fn act(&mut self) {
+    fn act(&mut self, inp: Self::Input) -> Self::Output {
         println!("{}:", self.prompt_text);
 
         let input =  {
@@ -34,23 +34,28 @@ impl<SE: Copy> StateBehaviorSuperType<SE> for Inputter<SE> {
                 Err(_) => None,
             }
         };
-
+        let mut ret = String::new();
         self.chosen = input.and_then(|string| match string {
             answer if answer == self.answer_1 => {
-                println!("selecionado caso {}", self.answer_1);
+                ret = format!("selecionado caso {}", self.answer_1);
                 Some(InputterTransitions::Transition1)
             },
             answer if answer == self.answer_2 => {
-                println!("selecionado caso {}", self.answer_2);    
+                ret = format!("selecionado caso {}", self.answer_2);    
                 Some(InputterTransitions::Transition2)
             },
-            answer => {println!("{} é inválido. Casos válidos: {}, {}", answer, self.answer_1, self.answer_2); None}
+            answer => {ret = format!("{} é inválido. Casos válidos: {}, {}", answer, self.answer_1, self.answer_2); None}
         });
+        ret
     }
 
     fn transition_condition(&self) -> TransitionOptions<SE> {
         StateTransitionsSetup::transition_condition(self, self.map)
     }
+
+    type Input = ();
+
+    type Output = String;
 }
 
 
