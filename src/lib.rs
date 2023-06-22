@@ -20,7 +20,8 @@ pub trait StateTransitionsSetup<StatesEnum: Copy>: StateBehaviorSuperType<States
 #[derive(Clone, Copy, Debug)]
 pub enum TransitionOptions<StatesEnum> {
     Stay,
-    Change(Option<StatesEnum>)
+    Change(StatesEnum),
+    End
 }
 
 pub trait FSM {
@@ -38,10 +39,11 @@ pub trait FSM {
     fn update_state(&mut self) -> bool {
         match self.current_state().transition_condition() {
             TransitionOptions::Stay => true,
-            TransitionOptions::Change(next) => match next {
-                Some(state) => {self.set_state(state); true},
-                None => false
+            TransitionOptions::Change(next) => {
+                self.set_state(next);
+                true
             },
+            TransitionOptions::End => false
         }
     }
 
